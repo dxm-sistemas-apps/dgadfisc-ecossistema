@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PORTAL DE RASTREABILIDADE - DETRAN RJ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- MENU DE NAVEGAÇÃO SUPERIOR -->
+    <header class="bg-gray-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e2/Ins%C3%ADgnia_bras%C3%A3o_estilizado_governos_Wilson_Witzel_e_Cl%C3%A1udio_Castro_RJ.png" alt="Brasão RJ" class="h-10 w-auto object-contain bg-white p-1 rounded">
+                <div>
+                    <span class="font-bold text-sm sm:text-base tracking-wider block">DETRAN RJ</span>
+                    <span class="text-[10px] text-gray-400 tracking-widest uppercase block">Desmontagem de Veículos</span>
+                </div>
+            </div>
+
+            <!-- Menu Desktop -->
+            <nav class="hidden md:flex items-center space-x-1 lg:space-x-3 text-xs uppercase font-bold tracking-wider">
+                <a href="index.html" class="px-3 py-2 rounded bg-gray-800 text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i> Início</a>
+                <a href="carro.html" class="px-3 py-2 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition"><i class="fa-solid fa-car mr-1"></i> Carro</a>
+                <a href="moto.html" class="px-3 py-2 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition"><i class="fa-solid fa-motorcycle mr-1"></i> Moto</a>
+                <a href="caminhão-ônibus.html" class="px-3 py-2 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition"><i class="fa-solid fa-truck mr-1"></i> Caminhão/Ônibus</a>
+                <a href="sucata.html" class="px-3 py-2 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition"><i class="fa-solid fa-recycle mr-1"></i> Sucata</a>
+                <a href="suporte.html" class="px-3 py-2 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition"><i class="fa-solid fa-headset mr-1"></i> Suporte</a>
+            </nav>
+
+            <!-- Botão Menu Mobile -->
+            <div class="md:hidden flex items-center">
+                <button id="menu-btn" class="text-gray-300 hover:text-white focus:outline-none p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Dropdown Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 border-t border-gray-700 px-4 pt-2 pb-4 space-y-1">
+            <a href="index.html" class="block px-3 py-2 rounded text-amber-400 font-bold text-sm uppercase"><i class="fa-solid fa-house mr-2"></i> Início</a>
+            <a href="carro.html" class="block px-3 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white text-sm uppercase"><i class="fa-solid fa-car mr-2"></i> Carro</a>
+            <a href="moto.html" class="block px-3 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white text-sm uppercase"><i class="fa-solid fa-motorcycle mr-2"></i> Moto</a>
+            <a href="caminhão-ônibus.html" class="block px-3 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white text-sm uppercase"><i class="fa-solid fa-truck mr-2"></i> Caminhão/Ônibus</a>
+            <a href="sucata.html" class="block px-3 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white text-sm uppercase"><i class="fa-solid fa-recycle mr-2"></i> Sucata</a>
+            <a href="suporte.html" class="block px-3 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white text-sm uppercase"><i class="fa-solid fa-headset mr-2"></i> Suporte</a>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main id="conteudo-inicial" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Cabeçalho Institucional -->
+        <div class="text-center mb-10 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h1 class="text-xl sm:text-2xl font-bold uppercase tracking-wide text-gray-900 mb-2">Painel de Controle de Rastreabilidade</h1>
+            <p class="text-sm text-gray-600 uppercase font-medium">Diretoria Geral das Atividades de Desmontagem — DETRAN RJ</p>
+            <div class="w-24 h-1 bg-amber-500 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <!-- Grade de Ícones / Páginas com ícones com o dobro do tamanho -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            
+            <!-- Card Carro -->
+            <a href="carro.html" class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 card-hover transition-all flex flex-col items-center text-center group">
+                <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-4 border-blue-500 mb-6 shadow-lg bg-gray-900 flex items-center justify-center">
+                    <img src="Gemini_Generated_Image_dlbhyldlbhyldlbh.jpg" alt="Módulo Carro" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <h2 class="font-bold text-gray-800 uppercase text-sm mb-1">Carro</h2>
+                <p class="text-xs text-gray-500 mb-4">Itens de rastreabilidade obrigatória para veículos leves.</p>
+                <span class="mt-auto text-xs font-bold text-blue-600 group-hover:underline uppercase tracking-wider">Acessar Módulo <i class="fa-solid fa-arrow-right ml-1"></i></span>
+            </a>
+
+            <!-- Card Moto -->
+            <a href="moto.html" class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 card-hover transition-all flex flex-col items-center text-center group">
+                <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-4 border-emerald-500 mb-6 shadow-lg bg-gray-900 flex items-center justify-center">
+                    <img src="Gemini_Generated_Image_9s7g5o9s7g5o9s7g.jpg" alt="Módulo Moto" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <h2 class="font-bold text-gray-800 uppercase text-sm mb-1">Moto</h2>
+                <p class="text-xs text-gray-500 mb-4">Controle e rastreio de peças de motocicletas desmontadas.</p>
+                <span class="mt-auto text-xs font-bold text-emerald-600 group-hover:underline uppercase tracking-wider">Acessar Módulo <i class="fa-solid fa-arrow-right ml-1"></i></span>
+            </a>
+
+            <!-- Card Caminhão/Ônibus -->
+            <a href="caminhão-ônibus.html" class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 card-hover transition-all flex flex-col items-center text-center group">
+                <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-4 border-amber-500 mb-6 shadow-lg bg-gray-900 flex items-center justify-center">
+                    <img src="Gemini_Generated_Image_qb2m0mqb2m0mqb2m.jpg" alt="Módulo Caminhão / Ônibus" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <h2 class="font-bold text-gray-800 uppercase text-sm mb-1">Caminhão / Ônibus</h2>
+                <p class="text-xs text-gray-500 mb-4">Rastreabilidade especializada para veículos pesados.</p>
+                <span class="mt-auto text-xs font-bold text-amber-600 group-hover:underline uppercase tracking-wider">Acessar Módulo <i class="fa-solid fa-arrow-right ml-1"></i></span>
+            </a>
+
+            <!-- Card Sucata -->
+            <a href="sucata.html" class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 card-hover transition-all flex flex-col items-center text-center group">
+                <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-4 border-purple-500 mb-6 shadow-lg bg-gray-900 flex items-center justify-center">
+                    <img src="Gemini_Generated_Image_2pkrmk2pkrmk2pkr.jpg" alt="Módulo Sucata" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <h2 class="font-bold text-gray-800 uppercase text-sm mb-1">Sucata</h2>
+                <p class="text-xs text-gray-500 mb-4">Gerenciamento e controle de lotes de sucatas metálicas.</p>
+                <span class="mt-auto text-xs font-bold text-purple-600 group-hover:underline uppercase tracking-wider">Acessar Módulo <i class="fa-solid fa-arrow-right ml-1"></i></span>
+            </a>
+
+            <!-- Card Suporte -->
+            <a href="suporte.html" class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 card-hover transition-all flex flex-col items-center text-center group sm:col-span-2 lg:col-span-1">
+                <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-4 border-rose-500 mb-6 shadow-lg bg-gray-900 flex items-center justify-center">
+                    <img src="Gemini_Generated_Image_qvgq8uqvgq8uqvgq.jpg" alt="Módulo Suporte" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <h2 class="font-bold text-gray-800 uppercase text-sm mb-1">Suporte</h2>
+                <p class="text-xs text-gray-500 mb-4">Canais de atendimento, dúvidas frequentes e assistência técnica.</p>
+                <span class="mt-auto text-xs font-bold text-rose-600 group-hover:underline uppercase tracking-wider">Acessar Módulo <i class="fa-solid fa-arrow-right ml-1"></i></span>
+            </a>
+
+        </div>
+
+    </main>
+
+
+    <!-- ÁREA DE MÓDULOS: os arquivos são carregados dentro desta própria página -->
+    <section id="area-modulo" class="hidden w-full mb-10">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="flex items-center justify-between gap-3 px-4 py-3 bg-gray-900 text-white">
+                <div class="flex items-center gap-2 min-w-0">
+                    <i id="icone-modulo" class="fa-solid fa-window-maximize text-amber-400"></i>
+                    <span id="titulo-modulo" class="font-bold text-sm uppercase truncate">Módulo</span>
+                </div>
+                <button id="btn-inicio-modulo" type="button"
+                    class="shrink-0 px-3 py-2 rounded bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold text-xs uppercase transition">
+                    <i class="fa-solid fa-house mr-1"></i> Início
+                </button>
+            </div>
+
+            <div class="relative bg-gray-50">
+                <div id="carregando-modulo"
+                     class="absolute inset-0 z-10 hidden items-center justify-center bg-white/90">
+                    <div class="text-center">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl text-gray-700 mb-2"></i>
+                        <p class="text-xs font-bold uppercase text-gray-600">Carregando módulo...</p>
+                    </div>
+                </div>
+
+                <iframe id="iframe-modulo"
+                        title="Módulo do Sistema"
+                        class="w-full border-0 block"
+                        style="height: calc(100vh - 80px); min-height: 900px;"
+                        loading="eager"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- RODAPÉ -->
+    <footer class="bg-white border-t border-gray-200 mt-12 py-6 text-center text-xs text-gray-500">
+        <p class="uppercase font-medium">Governo do Estado do Rio de Janeiro • DETRAN RJ</p>
+        <p class="mt-1">Sistema Integrado de Fiscalização e Rastreabilidade de Desmontagem</p>
+    </footer>
+
+    <!-- SCRIPT DE NAVEGAÇÃO INTERNA -->
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const conteudoInicial = document.getElementById('conteudo-inicial');
+        const areaModulo = document.getElementById('area-modulo');
+        const iframeModulo = document.getElementById('iframe-modulo');
+        const tituloModulo = document.getElementById('titulo-modulo');
+        const iconeModulo = document.getElementById('icone-modulo');
+        const carregandoModulo = document.getElementById('carregando-modulo');
+        const btnInicioModulo = document.getElementById('btn-inicio-modulo');
+
+        const modulos = {
+            "carro.html": {
+                titulo: "Itens de Rastreabilidade - Carro",
+                icone: "fa-car"
+            },
+            "moto.html": {
+                titulo: "Itens de Rastreabilidade - Moto",
+                icone: "fa-motorcycle"
+            },
+            "caminhão-ônibus.html": {
+                titulo: "Itens de Rastreabilidade - Caminhão / Ônibus",
+                icone: "fa-truck"
+            },
+            "caminhao-onibus.html": {
+                titulo: "Itens de Rastreabilidade - Caminhão / Ônibus",
+                icone: "fa-truck"
+            },
+            "sucata.html": {
+                titulo: "Controle de Sucata",
+                icone: "fa-recycle"
+            },
+            "suporte.html": {
+                titulo: "Suporte",
+                icone: "fa-headset"
+            }
+        };
+
+        function normalizarArquivo(url) {
+            try {
+                return decodeURIComponent(new URL(url, window.location.href).pathname.split('/').pop());
+            } catch (e) {
+                return url.split('/').pop();
+            }
+        }
+
+        function atualizarMenuAtivo(arquivo) {
+            document.querySelectorAll('header nav a, #mobile-menu a').forEach(link => {
+                const href = normalizarArquivo(link.getAttribute('href') || '');
+                const ativo = href === arquivo;
+
+                link.classList.toggle('bg-gray-800', ativo);
+                link.classList.toggle('text-amber-400', ativo);
+                link.classList.toggle('text-white', ativo);
+                link.classList.toggle('text-gray-300', !ativo);
+
+                if (ativo) {
+                    link.setAttribute('aria-current', 'page');
+                } else {
+                    link.removeAttribute('aria-current');
+                }
+            });
+        }
+
+        function irParaInicio() {
+            iframeModulo.src = 'about:blank';
+            areaModulo.classList.add('hidden');
+            conteudoInicial.classList.remove('hidden');
+            atualizarMenuAtivo('index(3).html');
+            mobileMenu.classList.add('hidden');
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function carregarModulo(arquivo, atualizarHistorico = true) {
+            const modulo = modulos[arquivo];
+
+            if (!modulo) {
+                // Arquivo não cadastrado no conjunto atual: mantém o comportamento seguro.
+                return;
+            }
+
+            conteudoInicial.classList.add('hidden');
+            areaModulo.classList.remove('hidden');
+
+            tituloModulo.textContent = modulo.titulo;
+            iconeModulo.className = 'fa-solid ' + modulo.icone + ' text-amber-400';
+
+            carregandoModulo.classList.remove('hidden');
+            carregandoModulo.classList.add('flex');
+
+            atualizarMenuAtivo(arquivo);
+            mobileMenu.classList.add('hidden');
+
+            iframeModulo.src = arquivo;
+
+            if (atualizarHistorico) {
+                history.pushState({ modulo: arquivo }, '', '#' + encodeURIComponent(arquivo));
+            }
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        iframeModulo.addEventListener('load', () => {
+            carregandoModulo.classList.add('hidden');
+            carregandoModulo.classList.remove('flex');
+        });
+
+        // Intercepta tanto os itens do menu superior quanto os cards/ícones.
+        document.querySelectorAll('a[href]').forEach(link => {
+            link.addEventListener('click', function(event) {
+                const arquivo = normalizarArquivo(this.getAttribute('href') || '');
+
+                if (arquivo === 'index(3).html' || arquivo === 'index.html') {
+                    event.preventDefault();
+                    irParaInicio();
+                    history.pushState({ modulo: null }, '', window.location.pathname);
+                    return;
+                }
+
+                if (modulos[arquivo]) {
+                    event.preventDefault();
+                    carregarModulo(arquivo);
+                }
+            });
+        });
+
+        btnInicioModulo.addEventListener('click', () => {
+            irParaInicio();
+            history.pushState({ modulo: null }, '', window.location.pathname);
+        });
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        window.addEventListener('popstate', (event) => {
+            const modulo = event.state && event.state.modulo;
+
+            if (modulo && modulos[modulo]) {
+                carregarModulo(modulo, false);
+            } else {
+                irParaInicio();
+            }
+        });
+
+        // Permite abrir diretamente um módulo pelo hash, sem criar outra aba.
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = decodeURIComponent(window.location.hash.replace(/^#/, ''));
+
+            if (hash && modulos[hash]) {
+                carregarModulo(hash, false);
+            } else {
+                atualizarMenuAtivo('index(3).html');
+            }
+        });
+    </script>
+</body>
+</html>
