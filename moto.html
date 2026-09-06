@@ -33,7 +33,7 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            .no-print, #barra-acoes, .btn-encerrar-container, button, .container-agregados-classe { 
+            .no-print, #barra-acoes, .btn-encerrar-container, button, .container-agregados-classe, #secao-historico-pdf { 
                 display: none !important; 
             }
             input:disabled, input { 
@@ -282,7 +282,31 @@
         </div>
     </div>
 
+    <!-- SEÇÃO DE HISTÓRICO DE PDFS GERADOS -->
+    <section id="secao-historico-pdf" class="max-w-4xl mx-auto bg-white p-4 sm:p-6 mt-6 shadow-md rounded-none sm:rounded-lg border border-gray-200 no-print">
+        <div class="flex flex-col md:flex-row justify-between items-center pb-4 mb-4 border-b border-gray-200 gap-4">
+            <div class="flex items-center gap-2">
+                <svg class="w-6 h-6 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="text-base sm:text-lg font-bold text-gray-800 uppercase tracking-wide">PDF's GERADOS</h3>
+            </div>
+            <div class="w-full md:w-72 relative">
+                <input type="text" id="busca-pdf" oninput="renderizarGridPDFs()" placeholder="BUSCAR PDF POR NOME OU DATA..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-900 focus:outline-none uppercase font-semibold">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div id="grid-pdfs-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Os cards de PDF serão inseridos aqui via JavaScript -->
+        </div>
+    </section>
+
 <script>
+document.addEventListener('DOMContentLoaded', () => { renderizarGridPDFs(); });
+
 const LOGO_DGAD_SUPORTE = "Gemini_Generated_Image_9s7g5o9s7g5o9s7g.jpg";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -542,6 +566,7 @@ function calcularLinha(input) {
     
     requestAnimationFrame(() => { calcularTotaisGerais(); });
 }
+
 function calcularTotaisGerais() {
     let tEtq = 0, tNEtq = 0, tFis = 0;
     document.querySelectorAll('.input-etiquetada').forEach(i => tEtq += parseInt(i.value) || 0);
@@ -761,25 +786,258 @@ function compartilharPDFWhatsApp() {
 }
 
 function gerarPDFPersonalizado() {
-    validarFormulario(() => {
+    validarFormulario(async () => {
         const nomeEstab = document.getElementById('info-nome').value.trim() || "SEM_NOME";    
         const nomeNatu = document.getElementById('info-natureza').value.trim() || "SEM_NATUREZA";
         const dataInput = document.getElementById('info-data').value;
         const dataFormatada = dataInput ? dataInput.split('-').reverse().join('-') : "SEM_DATA";
+        const nomeArquivo = `ITENS DE RASTREABILIDADE - MOTO - ${nomeEstab.toUpperCase()} - ${nomeNatu.toUpperCase()} - ${dataFormatada}.pdf`;
 
-        document.title = `ITENS DE RASTREABILIDADE - MOTO - ${nomeEstab.toUpperCase()} - ${nomeNatu.toUpperCase()} - ${dataFormatada}`;
-
-        canvases.forEach(id => {
-            const canvas = document.getElementById(id);
-            if(canvas) {
-                canvas.style.width = '100%';
-                canvas.style.height = '120px';
-            }
+        Swal.fire({
+            title: 'GERANDO PDF...',
+            text: 'ATENÇÃO, AGAURDE A CRIAÇÃO E SALVAMENTO DO ARQUIVO.',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
         });
 
-        window.print();
+        try {
+            canvases.forEach(id => {
+                const canvas = document.getElementById(id);
+                if(canvas) {
+                    canvas.style.width = '100%';
+                    canvas.style.height = '120px';
+                }
+            });
+
+            const elemento = document.getElementById('conteudo-principal');
+            const elementosNoPrint = elemento.querySelectorAll('.no-print');
+            elementosNoPrint.forEach(el => el.style.display = 'none');
+
+            const canvasHtml = await html2canvas(elemento, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+
+            elementosNoPrint.forEach(el => el.style.display = '');
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgData = canvasHtml.toDataURL('image/jpeg', 0.95);
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = pdfWidth - 10;
+            const imgHeight = (canvasHtml.height * imgWidth) / canvasHtml.width;
+
+            let heightLeft = imgHeight;
+            let position = 5;
+
+            pdf.addImage(imgData, 'JPEG', 5, position, imgWidth, imgHeight);
+            heightLeft -= pdfHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 5, position, imgWidth, imgHeight);
+                heightLeft -= pdfHeight;
+            }
+
+            // Gera o Blob antes do salvamento para permitir o compartilhamento
+            // como arquivo real pelo menu nativo do dispositivo.
+            const pdfBlob = pdf.output('blob');
+
+            // Salva automaticamente o PDF no dispositivo (pasta de Downloads
+            // ou local configurado pelo navegador).
+            pdf.save(nomeArquivo);
+
+            // Em celulares/tablets compatíveis, abre imediatamente o menu de
+            // compartilhamento de arquivos, onde o usuário pode escolher o WhatsApp
+            // e, em seguida, a conversa desejada.
+            await compartilharPDFGeradoWhatsApp(pdfBlob, nomeArquivo);
+
+            const pdfDataUri = pdf.output('datauristring');
+            salvarPDFHistorico({
+                id: Date.now(),
+                nome: nomeArquivo,
+                empresa: nomeEstab.toUpperCase(),
+                natureza: nomeNatu.toUpperCase(),
+                dataFiscalizacao: dataFormatada,
+                dataGeracao: new Date().toLocaleString('pt-BR'),
+                timestamp: Date.now(),
+                dataUri: pdfDataUri
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'PDF GERADO COM SUCESSO!',
+                text: 'ATENÇÃO, O ARQUIVO FOI GERADO E ADICIONADO AO HISTÓRICO NO FINAL DA PÁGINA.',
+                confirmButtonColor: '#000000'
+            });
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'ERRO AO GERAR PDF',
+                text: 'ATENÇÃO, OCORREU UM PROBLEMA AO GERAR O PDF.',
+                confirmButtonColor: '#000000'
+            });
+        }
     });
 }
+
+
+
+// Compartilha o PDF diretamente pelo menu nativo do dispositivo (incluindo WhatsApp).
+// O navegador primeiro baixa/salva o arquivo e, quando houver suporte a compartilhamento
+// de arquivos, abre o menu de compartilhamento para o usuário escolher a conversa.
+async function compartilharPDFGeradoWhatsApp(blob, nomeArquivo) {
+    const arquivo = new File([blob], nomeArquivo, { type: 'application/pdf' });
+
+    if (navigator.share && navigator.canShare) {
+        try {
+            if (navigator.canShare({ files: [arquivo] })) {
+                await navigator.share({
+                    files: [arquivo],
+                    title: nomeArquivo,
+                    text: 'PDF DE ITENS DE RASTREABILIDADE'
+                });
+                return true;
+            }
+        } catch (error) {
+            // O usuário pode ter fechado/cancelado o menu de compartilhamento.
+            if (error && error.name === 'AbortError') return false;
+            console.warn('Compartilhamento de arquivo não disponível:', error);
+        }
+    }
+
+    await Swal.fire({
+        icon: 'info',
+        title: 'PDF SALVO NO DISPOSITIVO',
+        html: `O arquivo foi salvo normalmente, mas este navegador não permite anexar automaticamente o PDF ao WhatsApp.<br><br>
+               <b>NO CELULAR:</b> use um navegador com compartilhamento de arquivos (como Chrome/Edge) para selecionar o WhatsApp no menu de compartilhamento.<br><br>
+               <b>NO COMPUTADOR:</b> abra o WhatsApp Web e anexe o PDF baixado.`,
+        confirmButtonColor: '#000000'
+    });
+    return false;
+}
+
+function salvarPDFHistorico(pdfObj) {
+    let historico = JSON.parse(localStorage.getItem('historico_pdfs_moto')) || [];
+    historico.push(pdfObj);
+    try {
+        localStorage.setItem('historico_pdfs_moto', JSON.stringify(historico));
+    } catch(e) {
+        if (e.name === 'QuotaExceededError') {
+            historico.shift();
+            localStorage.setItem('historico_pdfs_moto', JSON.stringify(historico));
+        }
+    }
+    renderizarGridPDFs();
+}
+
+function renderizarGridPDFs() {
+    const container = document.getElementById('grid-pdfs-container');
+    const termoBusca = (document.getElementById('busca-pdf')?.value || '').toLowerCase().trim();
+    let historico = JSON.parse(localStorage.getItem('historico_pdfs_moto')) || [];
+
+    // Ordenar do mais recente para o mais antigo
+    historico.sort((a, b) => b.timestamp - a.timestamp);
+
+    if (termoBusca) {
+        historico = historico.filter(item => 
+            item.nome.toLowerCase().includes(termoBusca) ||
+            item.empresa.toLowerCase().includes(termoBusca) ||
+            item.natureza.toLowerCase().includes(termoBusca) ||
+            item.dataFiscalizacao.toLowerCase().includes(termoBusca) ||
+            item.dataGeracao.toLowerCase().includes(termoBusca)
+        );
+    }
+
+    if (historico.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">NENHUM PDF ENCONTRADO NO HISTÓRICO</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = historico.map(item => `
+        <div class="bg-gray-50 hover:bg-blue-50/50 border border-gray-200 rounded-lg p-3 flex items-center justify-between transition shadow-sm hover:shadow">
+            <div class="flex items-center space-x-3 overflow-hidden pr-2">
+                <div class="cursor-pointer flex-shrink-0 text-red-600 hover:text-red-700 transition transform hover:scale-110" onclick="abrirPDF('${item.id}')" title="CLIQUE AQUI PARA ABRIR O PDF">
+                    <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="truncate">
+                    <p class="text-xs font-bold text-gray-800 uppercase truncate cursor-pointer hover:text-blue-900" onclick="abrirPDF('${item.id}')" title="${item.nome}">${item.empresa} - ${item.natureza}</p>
+                    <p class="text-[10px] text-gray-500 font-mono mt-0.5">FISCALIZAÇÃO: ${item.dataFiscalizacao} | GERADO EM: ${item.dataGeracao}</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-1 flex-shrink-0">
+                <button onclick="abrirPDF('${item.id}')" title="ABRIR / VISUALIZAR PDF" class="p-1.5 text-blue-900 hover:bg-blue-100 rounded-full transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                </button>
+                <button onclick="excluirPDF('${item.id}')" title="EXCLUIR PDF" class="p-1.5 text-red-600 hover:bg-red-100 rounded-full transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function abrirPDF(id) {
+    const historico = JSON.parse(localStorage.getItem('historico_pdfs_moto')) || [];
+    const pdfObj = historico.find(item => String(item.id) === String(id));
+    if (pdfObj && pdfObj.dataUri) {
+        const win = window.open();
+        if (win) {
+            win.document.write(`<iframe src="${pdfObj.dataUri}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'BLOQUEADOR DE POP-UP DETECTADO',
+                text: 'ATENÇÃO, PERMITA POP-UPS PARA ABRIR O PDF SALVO.',
+                confirmButtonColor: '#000000'
+            });
+        }
+    }
+}
+
+function excluirPDF(id) {
+    Swal.fire({
+        title: 'EXCLUIR PDF?',
+        text: 'ATENÇÃO, ESTA AÇÃO NÃO PODERÁ SER DESFEITA.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#000000',
+        confirmButtonText: 'EXCLUIR',
+        cancelButtonText: 'CANCELAR'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let historico = JSON.parse(localStorage.getItem('historico_pdfs_moto')) || [];
+            historico = historico.filter(item => String(item.id) !== String(id));
+            localStorage.setItem('historico_pdfs_moto', JSON.stringify(historico));
+            renderizarGridPDFs();
+            Swal.fire({
+                icon: 'success',
+                title: 'EXCLUÍDO!',
+                text: 'ATENÇÃO, O PDF FOI EXCLUÍDO DO HISTÓRICO.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
 
 function salvarProgresso() {
     if (window.isClearing) return;
@@ -803,7 +1061,7 @@ function salvarProgresso() {
         sig2: document.getElementById('sig-agente2').toDataURL(),
         sig3: document.getElementById('sig-empresa').toDataURL()
     };
-    localStorage.setItem('rascunho_rastreabilidade', JSON.stringify(rascunho));
+    localStorage.setItem('rascunho_moto', JSON.stringify(rascunho));
 }
 
 function limparTabela() {
@@ -826,7 +1084,7 @@ function limparTabela() {
         if (result.isConfirmed) {
             window.isClearing = true;
             window.foiConfirmadoLimpar = true;
-            localStorage.removeItem('rascunho_rastreabilidade');
+            localStorage.removeItem('rascunho_moto');
             
             dadosAgregadosPorModo = {
                 "etiquetada": { "motor-completo-etq": "" },
@@ -951,7 +1209,7 @@ window.addEventListener('resize', () => {
 window.onload = () => {
     canvases.forEach(id => { ajustarResolucaoCanvas(id); });
 
-    const rascunho = JSON.parse(localStorage.getItem('rascunho_rastreabilidade'));
+    const rascunho = JSON.parse(localStorage.getItem('rascunho_moto'));
     if (!rascunho) return;
 
     document.getElementById('info-nome').value = rascunho.nome || "";
@@ -1002,7 +1260,7 @@ function restaurarAssinatura(canvasId, dataUrl) {
 }    
 
 document.addEventListener('input', (e) => {
-    if (e.target.tagName === 'INPUT') {
+    if (e.target.tagName === 'INPUT' && e.target.id !== 'busca-pdf') {
         clearTimeout(window.saveTimeout);
         window.saveTimeout = setTimeout(() => { salvarProgresso(); }, 800); 
     }
